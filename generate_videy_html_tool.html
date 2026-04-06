@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videy JSON Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E50914; /* Netflix Red */
+            --primary-hover: #F40612;
+            --bg-body: #08080A;
+            --bg-card: rgba(20, 20, 25, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #FFFFFF;
+            --text-muted: #A0A0B0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background: linear-gradient(135deg, #050505, #140d12, #0a0a0f); 
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Decorative Background Orbs */
+        .orb {
+            position: fixed; filter: blur(100px); opacity: 0.4; z-index: -1;
+            border-radius: 50%; pointer-events: none;
+            animation: float 20s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(229, 9, 20, 0.15); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(138, 5, 25, 0.1); bottom: -50px; right: -50px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(50px) scale(1.1); }
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 850px; 
+            background: var(--bg-card); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px 45px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.8), inset 0 1px 0px rgba(255,255,255,0.05); 
+            animation: slideIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { text-align: center; margin-bottom: 35px; }
+
+        h2 { 
+            margin: 0 0 8px 0; 
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, #E50914 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle { color: var(--text-muted); font-size: 1.05rem; font-weight: 300; }
+
+        .instructions { 
+            background: rgba(0,0,0,0.4); 
+            padding: 20px 25px; 
+            border-radius: 12px; 
+            font-size: 0.95em; 
+            line-height: 1.7; 
+            margin-bottom: 25px; 
+            border-left: 4px solid var(--primary);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .instructions code { 
+            background: rgba(229, 9, 20, 0.15); 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            color: #ff4d4d;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        /* File Upload */
+        .file-upload { 
+            background: rgba(0,0,0,0.2); 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            padding: 35px 20px; 
+            text-align: center; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer;
+        }
+        
+        .file-upload:hover, .file-upload.dragover { 
+            border-color: var(--primary); 
+            background: rgba(229, 9, 20, 0.04); 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.1);
+        }
+        
+        .file-upload input[type="file"] { display: none; }
+        .file-upload label { 
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a); 
+            color: white; 
+            padding: 14px 30px; 
+            border-radius: 50px; 
+            font-weight: 600; 
+            display: inline-flex; 
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none; /* Let the container handle clicks */
+            font-size: 1rem;
+        }
+        
+        .file-upload:hover label { 
+            background: linear-gradient(135deg, var(--primary), #91050b); 
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+            transform: scale(1.05);
+        }
+
+        textarea { 
+            width: 100%; 
+            height: 200px; 
+            padding: 20px; 
+            background: #0a0a0d; 
+            color: #e0e0e0; 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95em;
+            resize: vertical;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.5);
+            line-height: 1.6;
+        }
+        textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15), inset 0 2px 10px rgba(0,0,0,0.5); 
+        }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 25px; }
+
+        button { 
+            background: linear-gradient(135deg, var(--primary), #a2060e); 
+            color: white; 
+            border: none; 
+            padding: 16px 30px; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.25);
+            flex: 1;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        button:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 12px 25px rgba(229, 9, 20, 0.4); 
+            filter: brightness(1.15);
+        }
+
+        button:active { transform: translateY(0); box-shadow: 0 4px 10px rgba(229, 9, 20, 0.3); }
+
+        #downloadBtn { 
+            background: linear-gradient(135deg, #10b981, #047857); 
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+            display: none; 
+            animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        #downloadBtn:hover { box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4); }
+
+        @keyframes scaleIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .output-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; margin-bottom: 15px;
+        }
+        
+        .output-header h3 { margin: 0; font-weight: 700; font-size: 1.4rem; letter-spacing: -0.5px; }
+        
+        .output-badge {
+            background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted);
+        }
+
+        pre { 
+            background: #08080a; 
+            padding: 25px; 
+            border-radius: 16px; 
+            overflow-x: auto; 
+            color: #e5c07b; /* Code Yellow */
+            border: 1px solid rgba(255,255,255,0.05); 
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+            box-shadow: inset 0 5px 20px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .syntax-string { color: #98c379; } /* Green */
+        .syntax-key { color: #e06c75; } /* Red */
+        .syntax-bracket { color: #abb2bf; } /* Grey */
+
+        .text-muted { color: var(--text-muted); font-size: 0.95em; margin-top: 15px; font-weight: 300; }
+
+        /* Custom Toast Notification */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #10b981; color: white;
+            padding: 16px 28px; border-radius: 12px;
+            font-weight: 600; font-size: 1rem;
+            box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000; display: flex; align-items: center; gap: 12px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container">
+    <div class="header">
+        <h2>Videy JSON Nexus</h2>
+        <div class="subtitle">Platform Generator Data Film & Video Pintar</div>
+    </div>
+    
+    <div class="instructions">
+        <strong>Fitur Pintar:</strong>
+        <ul style="margin: 8px 0; padding-left: 20px; color: #d0d0d0;">
+            <li>Format otomatis HTTPS & Ekstrak ID dari URL (Misal: <code>/M4nTap.mp4</code> ➡ ID <code>M4nTap</code>)</li>
+            <li>Judul acak super kreatif (700+ Kombinasi) akan disisipkan ke video jika Anda tidak mengisinya.</li>
+        </ul>
+        <div style="margin-top: 12px; color: #a0a0b0; font-size: 0.9em;">
+            Cukup paste link saja, atau gunakan <code>Judul | Link</code> jika ingin custom.
+        </div>
+    </div>
+
+    <!-- Upload Input -->
+    <div class="file-upload" id="dropZone" onclick="document.getElementById('txtFileInput').click()">
+        <strong style="display:block; margin-bottom:15px; font-size: 1.1rem; color: #fff;">Punya file .txt berisi banyak link?</strong>
+        <label>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Pilih File .txt / Tarik Kesini
+        </label>
+        <input type="file" id="txtFileInput" accept=".txt" onchange="handleFileUpload(event)">
+        <div id="fileNameDisplay" class="text-muted">Mendukung file teks biasa.</div>
+    </div>
+
+    <!-- Text Input -->
+    <textarea id="linksInput" placeholder="// Paste deretan link Anda di sini...&#10;Ahh Enakk | cdn2.videy.co/YKSKUp1J1.mp4&#10;cdn.videy.co/ABCDE.mp4&#10;videy.co/xyz123.mp4"></textarea>
+
+    <div class="btn-group">
+        <button onclick="generateJSON()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Generate Sekarang
+        </button>
+        <button onclick="downloadJSON()" id="downloadBtn">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+            Simpan (videos.json)
+        </button>
+    </div>
+
+    <div class="output-header">
+        <h3>Preview JSON</h3>
+        <div class="output-badge">Siap Dimuat</div>
+    </div>
+    
+    <pre id="output"><span class="syntax-bracket">{</span>
+  <span class="syntax-string">"status"</span>: <span class="syntax-string">"waiting_for_input"</span>
+<span class="syntax-bracket">}</span></pre>
+</div>
+
+<!-- Toast Popup -->
+<div class="toast" id="toastBox">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"></path></svg>
+    <span id="toastText">Berhasil!</span>
+</div>
+
+<script>
+    function generateId() {
+        return Math.random().toString(36).substring(2, 11);
+    }
+
+    function extractId(url) {
+        const filename = url.split('/').pop();
+        return filename.replace(/\.[^/.]+$/, "");
+    }
+
+    function generateRandomTitle() {
+        const prefixes = [
+            "Video", "Skandal", "Viral", "Bocoran", "Full", "Koleksi", "Durasi Full", "Hot", "Link",
+            "Kumpulan", "Rekaman", "Eksklusif", "Tersebar", "Heboh", "Tragedi", "Live", "Kompilasi",
+            "Terciduk", "Ngintip", "Rahasia", "Goyang", "Grebek", "Aksi", "Bikin Tegang"
+        ];
+        const suffixes = [
+            "Terbaru", "Mantap", "No Sensor", "Ahh Enakk", "Goyang Hot", "Bikin Lemes", "Viral Socmed",
+            "Asli Parah", "Bocor", "Jos", "Gacor", "Jernih HD", "Goyang Tiktok",
+            "Kamar Kos", "Di Hutan", "Bikin Nambah", "Bikin Meriang", "Montok",
+            "Pasrah", "Part 1", "Part 2", "Gadis", "Tante", "Karyawan",
+            "Anak SMA", "Janda", "Mahasiswi", "Malam Jumat", "Kepergok", "Bikin Pusing"
+        ];
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+        return `${prefix} ${suffix}`;
+    }
+
+    function fixUrl(url) {
+        url = url.trim();
+        url = url.replace(/^https?:\/\//i, '');
+        return 'https://' + url;
+    }
+    
+    function showToast(message) {
+        const toast = document.getElementById('toastBox');
+        document.getElementById('toastText').textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Syntax Highlighter untuk Preview JSON
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+             json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'syntax-string';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'syntax-key';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'syntax-bracket';
+            } else if (/null/.test(match)) {
+                cls = 'syntax-bracket';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    // Upload Handler
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        document.getElementById('fileNameDisplay').textContent = "📝 Memuat: " + file.name;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('linksInput').value = e.target.result;
+            generateJSON();
+        };
+        reader.readAsText(file);
+    }
+
+    // Drag and Drop Effects
+    const dropZone = document.getElementById('dropZone');
+    const txtInput = document.getElementById('txtFileInput');
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            txtInput.files = e.dataTransfer.files;
+            handleFileUpload({ target: { files: e.dataTransfer.files } });
+        }
+    });
+
+    let generatedData = [];
+
+    function generateJSON() {
+        const input = document.getElementById('linksInput').value.trim();
+        if (!input) {
+            alert('Ups! Data kosong. Tulis atau paste link terlebih dahulu!');
+            return;
+        }
+
+        const lines = input.split('\n');
+        generatedData = [];
+
+        lines.forEach((line) => {
+            if (!line.trim()) return;
+
+            let url = line.trim();
+            let title = "";
+
+            if (line.includes('|')) {
+                const parts = line.split('|');
+                title = parts[0].trim();
+                url = parts[1].trim();
+            } else {
+                title = generateRandomTitle();
+            }
+
+            let videoId = extractId(url);
+            if (!videoId) videoId = generateId(); 
+
+            generatedData.push({
+                id: videoId,
+                title: title,
+                video_url: fixUrl(url)
+            });
+        });
+
+        // Highlight and output
+        const formattedJSON = JSON.stringify(generatedData, null, 2);
+        document.getElementById('output').innerHTML = syntaxHighlight(formattedJSON);
+        
+        if (generatedData.length > 0) {
+            document.getElementById('downloadBtn').style.display = 'flex';
+            showToast(`Sukses! ${generatedData.length} Video diproses.`);
+        }
+    }
+
+    function downloadJSON() {
+        if (generatedData.length === 0) return;
+        
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(generatedData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "videos.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        
+        showToast('File videos.json diunduh!');
+    }
+</script>
+
+</body>
+</html>
