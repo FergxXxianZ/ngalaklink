@@ -341,14 +341,8 @@
     }
 
     function copyToClipboard() {
-        if (!currentRawString) return;
-        const el = document.createElement('textarea');
-        el.value = currentRawString;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        showToast("Log disalin! Siap dipaste ke JSON.");
+        navigator.clipboard.writeText(currentRawString);
+        showToast("JSON berhasil disalin");
     }
 
     function downloadFile() {
