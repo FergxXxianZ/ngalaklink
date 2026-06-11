@@ -292,7 +292,6 @@
         }
 
         const lines = input.split('\n').filter(line => line.trim() !== "");
-        let objects = [];
         let outputStr = "";
 
         lines.forEach((line, index) => {
@@ -308,7 +307,9 @@
                 url = line.trim();
             }
 
-            if (!url.startsWith('http')) url = 'https://' + url;
+            if (!url.startsWith('http')) {
+                url = 'https://' + url;
+            }
 
             const obj = {
                 id: extractId(url),
@@ -316,17 +317,18 @@
                 video_url: url
             };
 
-            let jsonString = JSON.stringify(obj, null, 2);
-            
-            // Tambahkan koma kecuali baris terakhir
+            outputStr += `  {
+            "id": "${obj.id}",
+            "title": "${obj.title.replace(/"/g, '\\"')}",
+            "video_url": "${obj.video_url}"
+          }`;
+
             if (index < lines.length - 1) {
-                jsonString += ",";
+                outputStr += ",";
             }
 
-            outputStr += jsonString + "\n";
-            objects.push(obj);
+            outputStr += "\n";
         });
-
         currentRawString = outputStr;
         document.getElementById('output').innerHTML = highlight(outputStr);
         document.getElementById('countDisplay').innerText = `${objects.length} Objek`;
