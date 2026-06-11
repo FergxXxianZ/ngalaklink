@@ -285,16 +285,9 @@
     }
 
     function processJSON() {
-        const input = linksInput.value.trim();
-        if (!input) {
-            showToast("Input kosong!");
-            return;
-        }
+        let objects = [];
 
-        const lines = input.split('\n').filter(line => line.trim() !== "");
-        let outputStr = "";
-
-        lines.forEach((line, index) => {
+        lines.forEach((line) => {
             let title = "";
             let url = "";
 
@@ -311,32 +304,20 @@
                 url = 'https://' + url;
             }
 
-            const obj = {
+            objects.push({
                 id: extractId(url),
                 title: title,
                 video_url: url
-            };
-
-            outputStr += `  {
-            "id": "${obj.id}",
-            "title": "${obj.title.replace(/"/g, '\\"')}",
-            "video_url": "${obj.video_url}"
-          }`;
-
-            if (index < lines.length - 1) {
-                outputStr += ",";
-            }
-
-            outputStr += "\n";
+            });
         });
-        currentRawString = outputStr;
-        document.getElementById('output').innerHTML = highlight(outputStr);
-        document.getElementById('countDisplay').innerText = `${objects.length} Objek`;
-        
-        document.getElementById('copyBtn').style.display = 'flex';
-        document.getElementById('downBtn').style.display = 'flex';
-        
-        showToast(`Berhasil memproses ${objects.length} video.`);
+
+        currentRawString = objects
+        .map((obj) => JSON.stringify(obj, null, 2))
+        .join(',\n');
+
+        document.getElementById('output').textContent = currentRawString;
+        document.getElementById('countDisplay').innerText =
+        `${objects.length} Objek`;
     }
 
     function copyToClipboard() {
