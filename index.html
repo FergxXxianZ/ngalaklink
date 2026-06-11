@@ -285,6 +285,17 @@
     }
 
     function processJSON() {
+        const input = linksInput.value.trim();
+
+        if (!input) {
+            showToast("Input kosong!");
+            return;
+        }
+        
+        const lines = input
+            .split('\n')
+            .filter(line => line.trim() !== '');
+
         let objects = [];
 
         lines.forEach((line) => {
@@ -312,12 +323,21 @@
         });
 
         currentRawString = objects
-        .map((obj) => JSON.stringify(obj, null, 2))
-        .join(',\n');
+            .map((obj, index) => {
+                return JSON.stringify(obj, null, 2) +
+                    (index < objects.length - 1 ? ',' : '');
+           })
+           .join('\n');
 
         document.getElementById('output').textContent = currentRawString;
+
         document.getElementById('countDisplay').innerText =
-        `${objects.length} Objek`;
+            `${objects.length} Objek`;
+
+        document.getElementById('copyBtn').style.display = 'flex';
+        document.getElementById('downBtn').style.display = 'flex';
+
+        showToast(`Berhasil memproses ${objects.length} video`);
     }
 
     function copyToClipboard() {
