@@ -1,369 +1,592 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link To JSon </title>
+    <title>Video URL to JSON Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                            950: '#4c0519',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for modern look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #E50914; 
-            --primary-hover: #F40612;
-            --secondary: #10b981;
-            --bg-body: #08080A;
-            --bg-card: rgba(20, 20, 25, 0.85);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-main: #FFFFFF;
-            --text-muted: #A0A0B0;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-
-        * { box-sizing: border-box; }
-
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            margin: 0; 
-            padding: 40px 20px; 
-            background: radial-gradient(circle at top right, #1a0a0f, #08080a 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .container { 
-            width: 100%;
-            max-width: 900px; 
-            background: var(--bg-card); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 45px; 
-            border-radius: 28px; 
-            border: 1px solid var(--border-color);
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.9);
-            animation: fadeIn 0.8s ease-out;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
         }
-
-        .header { text-align: center; margin-bottom: 40px; }
-        h2 { 
-            margin: 0 0 10px 0; 
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1.5px;
+        ::-webkit-scrollbar-thumb {
+            background: #9f1239;
+            border-radius: 3px;
         }
-        .subtitle { color: var(--text-muted); font-size: 1.1rem; }
-
-        /* Upload Area */
-        .upload-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.02);
-            transition: all 0.3s;
-            cursor: pointer;
-            margin-bottom: 25px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e11d48;
         }
-        .upload-zone:hover {
-            border-color: var(--primary);
-            background: rgba(229, 9, 20, 0.05);
-        }
-        .upload-zone.dragover {
-            border-color: var(--secondary);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        .upload-zone p { margin: 10px 0 0 0; color: var(--text-muted); }
-        .upload-zone strong { color: #fff; display: block; font-size: 1.1rem; }
-
-        /* Input Area */
-        textarea { 
-            width: 100%; 
-            height: 180px; 
-            padding: 20px; 
-            background: #050507; 
-            color: #d1d1d1; 
-            border: 1px solid var(--border-color); 
-            border-radius: 16px; 
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95em;
-            resize: vertical;
-            margin-bottom: 25px;
-            transition: border-color 0.3s;
-        }
-        textarea:focus { outline: none; border-color: var(--primary); }
-
-        /* Buttons */
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        button { 
-            padding: 18px; 
-            border: none; 
-            border-radius: 14px; 
-            font-weight: 700;
-            cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: all 0.2s;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-copy { background: #333; color: white; display: none; }
-        .btn-download { background: var(--secondary); color: white; display: none; }
-
-        button:hover { transform: translateY(-2px); filter: brightness(1.2); }
-        button:active { transform: translateY(0); }
-
-        /* Output Area */
-        .output-container { position: relative; }
-        .output-label {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 10px; color: var(--text-muted); font-weight: 600;
-        }
-
-        pre { 
-            background: #050507; 
-            padding: 30px; 
-            border-radius: 20px; 
-            overflow-x: auto; 
-            color: #d1d1d1;
-            border: 1px solid var(--border-color); 
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95em;
-            line-height: 1.6;
-            min-height: 100px;
-        }
-
-        /* Syntax colors */
-        .key { color: #e06c75; }
-        .string { color: #98c379; }
-        .punctuation { color: #abb2bf; }
-
-        /* Toast */
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--secondary); color: white; padding: 15px 30px;
-            border-radius: 50px; font-weight: 600; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; opacity: 0;
-        }
-        .toast.active { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        #fileInput { display: none; }
     </style>
 </head>
-<body>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col selection:bg-brand-600 selection:text-white">
 
-<div class="container">
-    <div class="header">
-        <h2>LINK TO JSON</h2>
-        <div class="subtitle">Created By Fergians</div>
-    </div>
-
-    <!-- File Upload Section -->
-    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: var(--primary); margin-bottom: 10px;">
-            <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v8"></path>
-        </svg>
-        <strong>Klik atau Tarik File .txt Ke Sini</strong>
-        <p id="fileName">Format: Judul | Link atau Link saja per baris</p>
-        <input type="file" id="fileInput" accept=".txt">
-    </div>
-
-    <textarea id="linksInput" placeholder="Atau paste link di sini secara manual..."></textarea>
-
-    <div class="btn-grid">
-        <button class="btn-primary" onclick="processJSON()">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-            Generate Raw Log
-        </button>
-        <button class="btn-copy" id="copyBtn" onclick="copyToClipboard()">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-            Salin Log
-        </button>
-        <button class="btn-download" id="downBtn" onclick="downloadFile()">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Download
-        </button>
-    </div>
-
-    <div class="output-container">
-        <div class="output-label">
-            <span>PREVIEW RAW LOG (Siap Paste)</span>
-            <span id="countDisplay" style="color: var(--primary);">0 Objek</span>
+    <!-- Header / Navbar -->
+    <header class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-50 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-600 to-red-950 flex items-center justify-center border border-brand-500/30 shadow-lg shadow-brand-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-brand-500 bg-clip-text text-transparent">
+                        SLICEDRIVE JSON GENERATOR
+                    </h1>
+                    <p class="text-xs text-zinc-500">Konversi URL Video mentah menjadi format JSON siap pakai</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-950/60 text-brand-400 border border-brand-900/50">
+                    <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                    Sistem Aktif
+                </span>
+            </div>
         </div>
-        <pre id="output">Hasil akan muncul di sini...</pre>
-    </div>
-</div>
+    </header>
 
-<div class="toast" id="toast">Berhasil disalin!</div>
-
-<script>
-    let currentRawString = "";
-    const fileInput = document.getElementById('fileInput');
-    const dropZone = document.getElementById('dropZone');
-    const linksInput = document.getElementById('linksInput');
-
-    // Handle File Upload via Click
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) handleFile(file);
-    });
-
-    // Handle Drag & Drop
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.txt')) {
-            handleFile(file);
-        } else {
-            showToast("Gunakan file .txt saja!");
-        }
-    });
-
-    function handleFile(file) {
-        document.getElementById('fileName').innerText = "📄 File: " + file.name;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            linksInput.value = e.target.result;
-            processJSON(); // Langsung proses setelah load
-        };
-        reader.readAsText(file);
-    }
-
-    function generateId() {
-        return Math.random().toString(36).substring(2, 10).toUpperCase();
-    }
-
-    function extractId(url) {
-        try {
-            const filename = url.split('/').pop();
-            const id = filename.replace(/\.[^/.]+$/, "");
-            return id || generateId();
-        } catch(e) { return generateId(); }
-    }
-
-    function getPrefix() {
-        const p = ["Hot", "Viral", "Bocor", "Skandal", "Full", "Goyang", "Aksi", "Terciduk", "Video", "Koleksi"];
-        return p[Math.floor(Math.random() * p.length)];
-    }
-
-    function getSuffix() {
-        const s = ["Mantap", "No Sensor", "Di Hutan", "Bikin Lemes", "Terbaru", "Jos", "Gacor", "Parah", "Malam Jumat"];
-        return s[Math.floor(Math.random() * s.length)];
-    }
-
-    function highlight(text) {
-        return text
-            .replace(/"(.*?)"(?=:)/g, '<span class="key">"$1"</span>') 
-            .replace(/:\s*"(.*?)"/g, ': <span class="string">"$1"</span>') 
-            .replace(/[{}[\]]/g, '<span class="punctuation">$&</span>'); 
-    }
-
-    function processJSON() {
-        const input = linksInput.value.trim();
-
-        if (!input) {
-            showToast("Input kosong!");
-            return;
-        }
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
         
-        const lines = input
-            .split('\n')
-            .filter(line => line.trim() !== '');
+        <!-- Welcome banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-950 border border-zinc-800/80 p-6 sm:p-8">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-72 h-72 rounded-full bg-brand-950/20 blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 max-w-3xl">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Generate JSON Cepat & Judul Otomatis</h2>
+                <p class="text-zinc-400 text-sm sm:text-base leading-relaxed mb-4">
+                    Unggah file teks berisi daftar URL video (satu URL per baris). Sistem akan mengekstrak kode ID unik secara otomatis, lalu membuat judul 3-kata viral secara acak dari database kosakata Indonesia yang telah disesuaikan.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <div class="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 flex items-center gap-1.5">
+                        <span class="font-bold text-brand-500">Format Input:</span> URL video mentah (.mp4/mkv/dll)
+                    </div>
+                    <div class="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 flex items-center gap-1.5">
+                        <span class="font-bold text-brand-500">Format Output:</span> Terstruktur dengan ID, Judul & URL
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        let objects = [];
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Side: Control & Upload Panel -->
+            <section class="lg:col-span-5 space-y-6">
+                
+                <!-- Word Bank Customization (Collapsible) -->
+                <div class="bg-zinc-900/60 backdrop-blur border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
+                    <button onclick="toggleWordBank()" class="w-full p-5 flex items-center justify-between text-left border-b border-zinc-800/80 hover:bg-zinc-900/80 transition-all">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <span class="p-1 rounded bg-brand-950 text-brand-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </span>
+                                Kustomisasi Bank Kata
+                            </h3>
+                            <p class="text-xs text-zinc-500 mt-1">Atur elemen penghasil 3 kata acak</p>
+                        </div>
+                        <svg id="wordbank-chevron" class="w-5 h-5 text-zinc-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    
+                    <div id="wordbank-content" class="p-5 space-y-4 hidden">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1">Kata ke-1 (Subjek / Sifat)</label>
+                            <textarea id="wordlist-1" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs code-font text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all h-20" placeholder="Dipisah tanda koma..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1">Kata ke-2 (Predikat / Aksi)</label>
+                            <textarea id="wordlist-2" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs code-font text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all h-20" placeholder="Dipisah tanda koma..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 mb-1">Kata ke-3 (Objek / Keterangan)</label>
+                            <textarea id="wordlist-3" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs code-font text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all h-20" placeholder="Dipisah tanda koma..."></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="resetWordBank()" class="px-3 py-1.5 rounded-lg border border-zinc-800 hover:bg-zinc-800 text-xs text-zinc-400 transition-all">
+                                Kembalikan Bawaan
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        lines.forEach((line) => {
-            let title = "";
-            let url = "";
+                <!-- Input & File Upload Area -->
+                <div class="bg-zinc-900/60 backdrop-blur border border-zinc-800/80 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span class="p-1 rounded bg-brand-950 text-brand-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        </span>
+                        Sumber Data URL
+                    </h3>
 
-            if (line.includes('|')) {
-                const parts = line.split('|');
-                title = parts[0].trim();
-                url = parts[1].trim();
-            } else {
-                title = `${getPrefix()} ${getSuffix()}`;
-                url = line.trim();
-            }
+                    <!-- Drag & Drop Zone -->
+                    <div id="drop-zone" class="border-2 border-dashed border-zinc-800 hover:border-brand-600/80 rounded-2xl p-8 text-center cursor-pointer transition-all bg-zinc-950/40 relative group">
+                        <input type="file" id="file-input" accept=".txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        
+                        <div class="space-y-3 pointer-events-none">
+                            <div class="inline-flex h-12 w-12 rounded-full bg-zinc-900 border border-zinc-800 items-center justify-center text-zinc-400 group-hover:text-brand-500 group-hover:border-brand-500/30 transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-zinc-200">
+                                    Unggah file <span class="text-brand-500 font-semibold">.txt</span>
+                                </p>
+                                <p class="text-xs text-zinc-500 mt-1">atau seret dan taruh file Anda di sini</p>
+                            </div>
+                        </div>
+                    </div>
 
-            if (!url.startsWith('http')) {
-                url = 'https://' + url;
-            }
+                    <div class="relative flex py-2 items-center text-xs text-zinc-600 uppercase">
+                        <div class="flex-grow border-t border-zinc-800/80"></div>
+                        <span class="flex-shrink mx-3 text-zinc-500">atau tempel teks manual</span>
+                        <div class="flex-grow border-t border-zinc-800/80"></div>
+                    </div>
 
-            objects.push({
-                id: extractId(url),
-                title: title,
-                video_url: url
+                    <!-- Manual Text Area -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-zinc-400">Tempel URL di bawah (Satu URL per baris)</label>
+                        <textarea id="manual-urls" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs code-font text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all h-36" placeholder="https://cdn2.slicedrive.com/wdcWDwN01.mp4&#10;https://cdn2.slicedrive.com/5khM1EEh1.mp4"></textarea>
+                    </div>
+
+                    <!-- Action Trigger -->
+                    <button id="btn-generate" onclick="generateJson()" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-red-700 hover:from-brand-500 hover:to-red-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-brand-950/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        PROSES DAN GENERATE JSON
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- Right Side: Realtime Log & JSON Output Preview -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- Realtime Log Terminal -->
+                <div class="bg-zinc-900/60 backdrop-blur border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl flex flex-col h-64">
+                    <div class="px-5 py-4 bg-zinc-950 border-b border-zinc-800/80 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="flex gap-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-600"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-600"></span>
+                            </span>
+                            <span class="text-xs font-bold text-zinc-400 tracking-wider uppercase ml-1 code-font">Activity Logs</span>
+                        </div>
+                        <button onclick="clearLogs()" class="text-[10px] uppercase tracking-wider font-semibold text-zinc-500 hover:text-brand-400 transition-all">
+                            Bersihkan Log
+                        </button>
+                    </div>
+                    <div id="log-terminal" class="p-4 flex-grow overflow-y-auto code-font text-xs space-y-1.5 bg-zinc-950/80 text-zinc-400 leading-relaxed">
+                        <div class="text-zinc-600">&gt; Sistem siap. Silakan masukkan URL atau unggah file .txt.</div>
+                    </div>
+                </div>
+
+                <!-- Result Preview & Download Box -->
+                <div class="bg-zinc-900/60 backdrop-blur border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+                    <div class="px-5 py-4 bg-zinc-950 border-b border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <span class="p-1 rounded bg-brand-950 text-brand-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                </span>
+                                Hasil JSON Generated
+                            </h3>
+                            <p class="text-xs text-zinc-500 mt-0.5" id="stats-label">Menunggu konversi...</p>
+                        </div>
+                        
+                        <!-- Control buttons -->
+                        <div class="flex items-center gap-2">
+                            <button id="btn-copy" onclick="copyJsonToClipboard()" disabled class="px-3.5 py-1.5 rounded-lg border border-zinc-800 hover:bg-zinc-800 text-xs font-semibold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                Salin
+                            </button>
+                            <button id="btn-download" onclick="downloadJson()" disabled class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-brand-950/20">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Unduh JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Code Preview Panel -->
+                    <div class="relative bg-zinc-950/90 h-[360px] overflow-auto">
+                        <pre id="json-preview" class="p-5 code-font text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed"><code class="text-zinc-600">// JSON akan muncul di sini setelah Anda menekan tombol proses</code></pre>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900 bg-zinc-950 py-6 px-4 text-center text-zinc-500 text-xs mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 Slicedrive JSON Toolkit. Sistem Automasi Judul Kreatif.</p>
+            <div class="flex gap-4">
+                <span class="hover:text-zinc-300 cursor-help" title="Format: [ { id: '...', title: '...', video_url: '...' } ]">Format Valid</span>
+                <span class="text-zinc-700">|</span>
+                <span class="hover:text-zinc-300">Warna Premium Hitam-Merah</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Modal/Toast UI -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-zinc-900 border border-brand-500/30 text-white rounded-xl px-4 py-3 shadow-2xl flex items-center gap-3">
+            <div class="p-1 rounded bg-brand-950 text-brand-500" id="toast-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-xs font-bold" id="toast-title">Berhasil</p>
+                <p class="text-[10px] text-zinc-400 mt-0.5" id="toast-desc">Teks berhasil disalin ke papan klip.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // Default Wordbanks for generating creative, localized titles
+        const defaultWords1 = [
+            "Viral", "Bocil", "Cindo", "Goyang", "Mandi", "Skandal", "Tiktok", "Tante", "Siswa", 
+            "Gadis", "Cowok", "Koleksi", "Video", "Hot", "Manis", "Imut", "Pemersatu", "Aksi",
+            "Seksi", "Manja", "Liar", "Artis", "Selebgram", "Pecah"
+        ];
+
+        const defaultWords2 = [
+            "Lagi", "Main", "Joget", "Desah", "Ngocok", "Colmek", "Mulus", "Basah", "Wikwik", 
+            "Ngintip", "Sange", "Mandi", "Bobo", "Manja", "Liar", "Pasrah", "Pamer", "Senggol",
+            "Gemas", "Mendalam", "Ngiler", "Nempel"
+        ];
+
+        const defaultWords3 = [
+            "Selingkuhan", "Banget", "Mantap", "Tiktokers", "Terbaru", "HD", "Viral", "Pemersatu", 
+            "Bangsa", "Baru", "Sore", "Malam", "Hotel", "Kostan", "Mantep", "Sekolah", "Netizen",
+            "Heboh", "Telegram", "Lokal", "Barat"
+        ];
+
+        // Global State
+        let generatedData = null;
+
+        // Initialize inputs on page load
+        window.onload = function() {
+            document.getElementById('wordlist-1').value = defaultWords1.join(', ');
+            document.getElementById('wordlist-2').value = defaultWords2.join(', ');
+            document.getElementById('wordlist-3').value = defaultWords3.join(', ');
+
+            // Setup file drop listeners
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+
+            fileInput.addEventListener('change', handleFileSelect);
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-brand-500', 'bg-brand-950/10');
             });
-        });
 
-        currentRawString = objects
-            .map((obj, index) => {
-                return JSON.stringify(obj, null, 2) +
-                    (index < objects.length - 1 ? ',' : '');
-           })
-           .join('\n');
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-brand-500', 'bg-brand-950/10');
+            });
 
-        document.getElementById('output').textContent = currentRawString;
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-brand-500', 'bg-brand-950/10');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect();
+                }
+            });
+        };
 
-        document.getElementById('countDisplay').innerText =
-            `${objects.length} Objek`;
+        // File Handler
+        function handleFileSelect() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (!file) return;
 
-        document.getElementById('copyBtn').style.display = 'flex';
-        document.getElementById('downBtn').style.display = 'flex';
+            addLog(`Mengunggah file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`, 'info');
 
-        showToast(`Berhasil memproses ${objects.length} video`);
-    }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                document.getElementById('manual-urls').value = text;
+                addLog(`File berhasil dibaca! Menemukan ${text.split('\n').filter(line => line.trim() !== '').length} baris teks.`, 'success');
+            };
+            reader.onerror = function() {
+                addLog('Gagal membaca file .txt!', 'error');
+            };
+            reader.readAsText(file);
+        }
 
-    function copyToClipboard() {
-        navigator.clipboard.writeText(currentRawString);
-        showToast("JSON berhasil disalin");
-    }
+        // Toggle Wordbank View
+        function toggleWordBank() {
+            const content = document.getElementById('wordbank-content');
+            const chevron = document.getElementById('wordbank-chevron');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
 
-    function downloadFile() {
-        if (!currentRawString) return;
-        const blob = new Blob([currentRawString], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "raw_objects.txt";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+        // Reset Wordbank inputs to default
+        function resetWordBank() {
+            document.getElementById('wordlist-1').value = defaultWords1.join(', ');
+            document.getElementById('wordlist-2').value = defaultWords2.join(', ');
+            document.getElementById('wordlist-3').value = defaultWords3.join(', ');
+            addLog('Koleksi bank kata dikembalikan ke pengaturan bawaan.', 'info');
+        }
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.classList.add('active');
-        setTimeout(() => t.classList.remove('active'), 3000);
-    }
-</script>
+        // Logger Function
+        function addLog(message, type = 'info') {
+            const logTerminal = document.getElementById('log-terminal');
+            const logLine = document.createElement('div');
+            
+            let colorClass = 'text-zinc-400';
+            let prefix = '&gt; ';
 
+            if (type === 'success') {
+                colorClass = 'text-emerald-400 font-medium';
+                prefix = '[✓] ';
+            } else if (type === 'error') {
+                colorClass = 'text-red-400 font-bold';
+                prefix = '[✕] ';
+            } else if (type === 'info') {
+                colorClass = 'text-brand-400';
+                prefix = '[i] ';
+            }
+
+            const timestamp = new Date().toLocaleTimeString('id-ID');
+            logLine.innerHTML = `<span class="text-zinc-600">[${timestamp}]</span> <span class="${colorClass}">${prefix}${message}</span>`;
+            
+            logTerminal.appendChild(logLine);
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('log-terminal').innerHTML = '<div class="text-zinc-600">&gt; Logs dibersihkan.</div>';
+        }
+
+        // Word randomizer logic
+        function generateRandomTitle(bank1, bank2, bank3) {
+            const w1 = bank1[Math.floor(Math.random() * bank1.length)].trim();
+            const w2 = bank2[Math.floor(Math.random() * bank2.length)].trim();
+            const w3 = bank3[Math.floor(Math.random() * bank3.length)].trim();
+            
+            // Capitalize first letter of each word properly
+            const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+            return `${cap(w1)} ${cap(w2)} ${cap(w3)}`;
+        }
+
+        // ID extractor helper
+        function extractIdFromUrl(url) {
+            try {
+                const parsedUrl = new URL(url);
+                const pathParts = parsedUrl.pathname.split('/');
+                const filename = pathParts[pathParts.length - 1];
+                if (filename && filename.includes('.')) {
+                    // Extract name before extension
+                    return filename.split('.')[0];
+                } else if (filename) {
+                    return filename;
+                }
+            } catch (e) {
+                // If it's not a standard URL, try extraction by simple splits
+                const parts = url.split('/');
+                const last = parts[parts.length - 1];
+                if (last && last.includes('.')) {
+                    return last.split('.')[0];
+                }
+            }
+            // Fallback: Generate short random unique identifier
+            return Math.random().toString(36).substring(2, 11).toUpperCase();
+        }
+
+        // Core Generator Logic
+        function generateJson() {
+            const rawText = document.getElementById('manual-urls').value.trim();
+            if (!rawText) {
+                addLog('Gagal memproses: Teks URL atau file input kosong!', 'error');
+                showToast('Kesalahan', 'Masukkan atau unggah teks berisi URL terlebih dahulu.', 'error');
+                return;
+            }
+
+            // Read custom banks
+            const bank1 = document.getElementById('wordlist-1').value.split(',').filter(x => x.trim() !== '');
+            const bank2 = document.getElementById('wordlist-2').value.split(',').filter(x => x.trim() !== '');
+            const bank3 = document.getElementById('wordlist-3').value.split(',').filter(x => x.trim() !== '');
+
+            if (bank1.length === 0 || bank2.length === 0 || bank3.length === 0) {
+                addLog('Kumpulan bank kata tidak boleh kosong!', 'error');
+                showToast('Kesalahan', 'Silakan isi setiap kolom bank kata.', 'error');
+                return;
+            }
+
+            const rawLines = rawText.split('\n');
+            const results = [];
+            let validCount = 0;
+
+            addLog(`Memulai pembuatan JSON dari ${rawLines.length} baris teks...`, 'info');
+
+            rawLines.forEach((line, index) => {
+                const cleanLine = line.trim();
+                if (!cleanLine) return; // Skip empty lines
+
+                // URL Basic validation
+                if (cleanLine.startsWith('http://') || cleanLine.startsWith('https://')) {
+                    const extractedId = extractIdFromUrl(cleanLine);
+                    const randomTitle = generateRandomTitle(bank1, bank2, bank3);
+
+                    results.push({
+                        id: extractedId,
+                        title: randomTitle,
+                        video_url: cleanLine
+                    });
+                    validCount++;
+                } else {
+                    addLog(`Baris #${index + 1} dilewati karena format URL tidak valid: "${cleanLine.slice(0, 30)}..."`, 'error');
+                }
+            });
+
+            if (results.length === 0) {
+                addLog('Tidak ditemukan URL valid untuk dikonversi!', 'error');
+                showToast('Selesai', 'Tidak ada URL valid yang diproses.', 'error');
+                return;
+            }
+
+            generatedData = results;
+
+            // UI Updates
+            document.getElementById('stats-label').innerHTML = `Berhasil generate <span class="text-brand-500 font-bold">${validCount}</span> item JSON`;
+            document.getElementById('json-preview').textContent = JSON.stringify(results, null, 2);
+            
+            // Enable Actions Buttons
+            document.getElementById('btn-copy').removeAttribute('disabled');
+            document.getElementById('btn-download').removeAttribute('disabled');
+
+            addLog(`Generasi JSON selesai! Berhasil memproses ${validCount} item video.`, 'success');
+            showToast('Konversi Selesai', `Berhasil memproses ${validCount} URL Video.`, 'success');
+        }
+
+        // Copy Clipboard Helper (using recommended execCommand pattern)
+        function copyJsonToClipboard() {
+            if (!generatedData) return;
+
+            const textToCopy = JSON.stringify(generatedData, null, 2);
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed'; // Avoid scrolling to bottom
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    addLog('JSON disalin ke clipboard.', 'success');
+                    showToast('Tersalin!', 'Data JSON berhasil disalin ke papan klip Anda.', 'success');
+                } else {
+                    addLog('Gagal menyalin JSON.', 'error');
+                }
+            } catch (err) {
+                addLog('Error saat menyalin data: ' + err, 'error');
+            }
+
+            document.body.removeChild(textarea);
+        }
+
+        // File Download Handler
+        function downloadJson() {
+            if (!generatedData) return;
+
+            try {
+                const jsonString = JSON.stringify(generatedData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'generated_video_list.json';
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                addLog('Unduhan file "generated_video_list.json" telah dimulai.', 'success');
+                showToast('Unduhan Dimulai', 'File JSON Anda berhasil diekspor.', 'success');
+            } catch (err) {
+                addLog('Gagal mengunduh berkas: ' + err, 'error');
+            }
+        }
+
+        // Toast Notification System
+        function showToast(title, desc, type = 'success') {
+            const toast = document.getElementById('toast-box');
+            const tTitle = document.getElementById('toast-title');
+            const tDesc = document.getElementById('toast-desc');
+            const tIcon = document.getElementById('toast-icon');
+
+            tTitle.textContent = title;
+            tDesc.textContent = desc;
+
+            if (type === 'error') {
+                tIcon.className = 'p-1 rounded bg-red-950 text-red-500';
+                tIcon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else {
+                tIcon.className = 'p-1 rounded bg-brand-950 text-brand-500';
+                tIcon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            // Animate in
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                // Animate out
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+    </script>
 </body>
-</html>
+    </html>
